@@ -181,16 +181,19 @@ int parse_ng(FILE *fd, ng_node **outNodes)
         printf("parsing '%s'",line);
         
         line = my_readline(fd, 1);
-        nNums = get_ints(line, &nums, 0);
-        if ( nNums != 2 ) FAIL("NG Code");
-        printf("\tcftc id: %d, open interest: %d\n",nums[0],nums[1]);
+        //nNums = get_ints(line, &nums, 0);
+        //if ( nNums != 2 ) FAIL("NG Code");
+        //printf("\tcftc id: %d, open interest: %d\n",nums[0],nums[1]);
         
         line = my_readline(fd, 2);
         nNums = get_ints(line, &nums, 0);
         if ( nNums != 11 ) FAIL("NG Positions");
         printf("positions: ");
         for(int j = 0; j < nNums; j++) {
-            printf("%d%s",nums[j],(j == nNums - 1)?"\n":" ");
+            if(nums[j]==DOT_INT)
+                printf(".%s",(j == nNums - 1)?"\n":" ");
+            else
+                printf("%d%s",nums[j],(j == nNums - 1)?"\n":" ");
             ((int *)&nodes[nNodes].p)[j] = nums[j];
         }
         free(nums);
@@ -200,7 +203,10 @@ int parse_ng(FILE *fd, ng_node **outNodes)
         if ( nNums != 11 ) FAIL("NG Changes");
         printf("changes: ");
         for(int j = 0; j < nNums; j++) {
-            printf("%d%s",nums[j],(j == nNums - 1)?"\n":" ");
+            if(nums[j]==DOT_INT)
+                printf(".%s",(j == nNums - 1)?"\n":" ");
+            else
+                printf("%d%s",nums[j],(j == nNums - 1)?"\n":" ");
             ((int *)&nodes[nNodes].c)[j] = nums[j];
         }
         free(nums);
@@ -210,7 +216,10 @@ int parse_ng(FILE *fd, ng_node **outNodes)
         if ( nNums != 11 ) FAIL("NG Perc");
         printf("perc: ");
         for(int j = 0; j < nNums; j++) {
-            printf("%0.2f%s",floats[j],(j == nNums - 1)?"\n":" ");
+            if(nums[j]==DOT_FLOAT)
+                printf(".%s",(j == nNums - 1)?"\n":" ");
+            else
+                printf("%0.1f%s",floats[j],(j == nNums - 1)?"\n":" ");
             ((float *)&nodes[nNodes].poic)[j] = floats[j];
         }
         free(floats);
@@ -220,7 +229,10 @@ int parse_ng(FILE *fd, ng_node **outNodes)
         if ( nNums != 11 ) FAIL("NG Traders");
         printf("traders: ");
         for(int j = 0; j < nNums; j++) {
-            printf("%d%s",nums[j],(j == nNums - 1)?"\n":" ");
+            if(nums[j]==DOT_INT)
+                printf(".%s",(j == nNums - 1)?"\n":" ");
+            else
+                printf("%d%s",nums[j],(j == nNums - 1)?"\n":" ");
             ((int *)&nodes[nNodes].n)[j] = nums[j];
         }
         free(nums);
