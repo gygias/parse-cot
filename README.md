@@ -1,2 +1,2 @@
 # parse-cot
-tool to parse commitment of traders cftc releases
+tool to download & parse cftc commitment of traders reports
