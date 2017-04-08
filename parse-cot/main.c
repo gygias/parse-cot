@@ -6,8 +6,6 @@
 //  Copyright © 2017 combobulated. All rights reserved.
 //
 
-// BUGS: 'code' can be alphanumeric, see how it's defined and expand parser
-
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
