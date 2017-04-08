@@ -25,13 +25,35 @@
 #define FAIL(x) { fprintf(stderr,"error: " x "\n"); exit(1); }
 
 char gLine[1024];
-const char *my_readline(FILE *fd, int times)
+char *my_readline(FILE *fd, int times)
 {
     while( times-- ) {
         char *res = fgets(gLine,1024,fd);
         if ( res == NULL ) FAIL("my_readline");
     }
     return gLine;
+}
+
+char *get_code(char *line, char **code)
+{
+    int idx = 0;
+    unsigned long len = strlen(line);
+    while ( idx < len ) {
+        if ( line[idx] == '#' ) {
+            idx++;
+            *code = line + idx;
+            
+            while (line[idx] != ' ' && line[idx] != '\t')
+                idx++;
+            
+            line[idx] = '\0';
+            idx++;
+            break;
+        }
+        idx++;
+    }
+    
+    return line + idx;
 }
 
 int get_ints(const char *line, int **numbers, int dots)
@@ -166,7 +188,7 @@ typedef struct ng_node {
 
 int parse_ng(FILE *fd, ng_node **outNodes)
 {
-    const char *line;
+    char *line;
     int nodesSize = 52, nNodes = 0; // as of 4/2017
     int *nums,nNums;
     float *floats;
@@ -181,9 +203,11 @@ int parse_ng(FILE *fd, ng_node **outNodes)
         printf("parsing '%s'",line);
         
         line = my_readline(fd, 1);
-        //nNums = get_ints(line, &nums, 0);
-        //if ( nNums != 2 ) FAIL("NG Code");
-        //printf("\tcftc id: %d, open interest: %d\n",nums[0],nums[1]);
+        char *code;
+        line = get_code(line, &code);
+        nNums = get_ints(line, &nums, 0);
+        if ( nNums != 1 ) FAIL("NG Code");
+        printf("\tcftc id: %s, open interest: %d\n",code,nums[0]);
         
         line = my_readline(fd, 2);
         nNums = get_ints(line, &nums, 0);
