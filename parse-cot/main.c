@@ -47,6 +47,17 @@ char *my_readline(FILE *fd, int times)
     return gLine;
 }
 
+void chomp(char *line)
+{
+    unsigned long idx = strlen(line) - 1;
+    while (idx--) {
+        if ( line[idx] != ':' && line[idx] != ' ' && line[idx] != '\t' && line[idx] != '\n' && line[idx] != '\r' ) {
+            line[idx+1] = '\0';
+            return;
+        }
+    }
+}
+
 char *get_code(char *line, char **code)
 {
     int idx = 0;
@@ -193,6 +204,9 @@ typedef struct poic {
 } poic;
 
 typedef struct node {
+    const char *desc;
+    const char *cftcID;
+    int OI;
     p_c_or_n p;
     p_c_or_n c;
     poic poic;
@@ -225,16 +239,19 @@ int parse(FILE *fd, node **outNodes)
         if ( strncmp( NODE_BEGIN, line, prefLen ) != 0 )
             break;
         line = my_readline(fd, 7);
-        printf("parsing '%s'",line);
+        chomp(line);
+        nodes[nNodes].desc = malloc(strlen(line));
+        strcpy((char *)nodes[nNodes].desc,line);
         
         line = my_readline(fd, 1);
         char *code;
-        int openInterest;
         line = get_code(line, &code);
         nNums = get_ints(line, &nums, 0);
         if ( nNums != 1 ) FAIL("Code");
-        openInterest = nums[0];
-        printf("\tcftc id: %s, open interest: %d\n",code,openInterest);
+        nodes[nNodes].cftcID = malloc(strlen(code)*sizeof(char));
+        strcpy((char *)nodes[nNodes].cftcID, code);
+        nodes[nNodes].OI = nums[0];
+        printf("parsing #%s, oi%d '%s'\n",nodes[nNodes].cftcID,nodes[nNodes].OI,nodes[nNodes].desc);
         
         line = my_readline(fd, 2);
         nNums = get_ints(line, &nums, 0);
@@ -351,6 +368,7 @@ int main(int argc, const char * argv[]) {
     
     fclose(fp);
     unlink(template);
+    free(template);
     
     return 0;
 }
