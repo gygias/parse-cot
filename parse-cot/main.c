@@ -47,11 +47,11 @@ char *my_readline(FILE *fd, int times)
     return gLine;
 }
 
-void chomp(char *line)
+void chomp(char *line, const char *mask)
 {
     unsigned long idx = strlen(line) - 1;
     while (idx--) {
-        if ( line[idx] != ':' && line[idx] != ' ' && line[idx] != '\t' && line[idx] != '\n' && line[idx] != '\r' ) {
+        if ( NULL == strchr(mask,line[idx]) ) {
             line[idx+1] = '\0';
             return;
         }
@@ -239,7 +239,7 @@ int parse(FILE *fd, node **outNodes)
         if ( strncmp( NODE_BEGIN, line, prefLen ) != 0 )
             break;
         line = my_readline(fd, 7);
-        chomp(line);
+        chomp(line,": \t\r\n");
         nodes[nNodes].desc = malloc(strlen(line));
         strcpy((char *)nodes[nNodes].desc,line);
         
