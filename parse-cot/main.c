@@ -24,6 +24,17 @@
 #define DOT_INT INT_MIN
 #define DOT_FLOAT NAN
 
+#define NG_HH "023391"
+#define NG_NYMEX "023651"
+#define NG_HH_SWAP_NYMEX "03565B"
+//
+#define CL_WTI_ICE_EU "067411"
+#define CL_WTI_NYMEX "067651"
+#define CL_WTI_NYMEX_SWAP "06765A"
+#define CL_BRENT_NYMEX "06765T"
+//
+#define GC_COMEX "088691"
+
 #define FAIL(x) { fprintf(stderr,"error: " x "\n"); exit(1); }
 
 char gLine[1024];
@@ -318,24 +329,21 @@ int main(int argc, const char * argv[]) {
     char *template = strdup("/tmp/parse-cot-XXXXXXXXXXX");
     int tempFd = mkstemp(template);
     if ( tempFd == -1 ) FAIL("mkstemp");
+    
     curl = curl_easy_init();
-    if (curl) {
-        fp = fdopen(tempFd,"wb");
-        curl_easy_setopt(curl, CURLOPT_URL, url);
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
-        res = curl_easy_perform(curl);
-        /* always cleanup */
-        curl_easy_cleanup(curl);
-        fclose(fp);
-        close(tempFd);
-    } else FAIL("curl");
+    if (!curl) FAIL("curl");
+    fp = fdopen(tempFd,"wb");
+    curl_easy_setopt(curl, CURLOPT_URL, url);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+    res = curl_easy_perform(curl);
+    /* always cleanup */
+    curl_easy_cleanup(curl);
+    fclose(fp);
+    close(tempFd);
 
     fp = fopen(template, "r");
-    if ( fp == NULL ) {
-        fprintf(stderr,"fopen(%s) failed: %s\n",template,strerror(errno));
-        return 1;
-    }
+    if ( fp == NULL ) FAIL("reopen temp file");
     
     node *nodes;
     int nNodes = parse(fp,&nodes);
